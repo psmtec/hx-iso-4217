@@ -57,7 +57,7 @@ class Converter {
 	static function writeCodes( url: String, table: Array<Entry> ) {
 		var content = new StringBuf();
 		content.add('package iso4217;\n\n');
-		content.add('@:enum abstract CurrencyCode(String) {\n');
+		content.add('@:enum abstract CurrencyCode(String) from String to String {\n');
 
 		var sorted = table.copy();
 		sorted.sort(sortABC);

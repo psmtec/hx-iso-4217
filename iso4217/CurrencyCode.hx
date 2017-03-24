@@ -1,6 +1,6 @@
 package iso4217;
 
-@:enum abstract CurrencyCode(String) {
+@:enum abstract CurrencyCode(String) from String to String {
 	var AED = 'AED';
 	var AFN = 'AFN';
 	var ALL = 'ALL';
