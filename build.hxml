@@ -1,0 +1,4 @@
+-lib hxnodejs
+-cp data
+-main Converter
+-js converter.js
