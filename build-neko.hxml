@@ -1,4 +1,0 @@
-deps.hxml
--neko converter.n
---next
--cmd neko converter.n

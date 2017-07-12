@@ -1,5 +1,0 @@
-deps.hxml
--lib hxnodejs
--js converter.js
---next
--cmd node ./converter.js
