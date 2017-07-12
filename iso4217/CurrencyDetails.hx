@@ -1,5 +1,8 @@
 package iso4217;
 
+// this file is generated, modifications will be lost
+
+@:expose @:keep
 class CurrencyDetails {
 	public static var AED: CurrencyData = { number: 784, minorUnits: Some(2), minorToMajor: 0.01 }
 	public static var AFN: CurrencyData = { number: 971, minorUnits: Some(2), minorToMajor: 0.01 }

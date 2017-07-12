@@ -80,7 +80,8 @@ class Converter {
 	static function writeCodes( url: String, table: Array<Entry> ) {
 		var content = new StringBuf();
 		content.add('package iso4217;\n\n');
-		content.add('@:enum abstract CurrencyCode(String) from String to String {\n');
+		content.add('// this file is generated, modifications will be lost\n\n');
+		content.add('@:expose @:keep\n@:enum abstract CurrencyCode(String) from String to String {\n');
 
 		var sorted = table.copy();
 		sorted.sort(sortABC);
@@ -98,7 +99,8 @@ class Converter {
 	static function writeDetails( url: String, table: Array<Entry> ) {
 		var content = new StringBuf();
 		content.add('package iso4217;\n\n');
-		content.add('class CurrencyDetails {\n');
+		content.add('// this file is generated, modifications will be lost\n\n');
+		content.add('@:expose @:keep\nclass CurrencyDetails {\n');
 
 		var sorted = table.copy();
 		sorted.sort(sortABC);

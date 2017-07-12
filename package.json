@@ -1,0 +1,22 @@
+{
+  "name": "iso4217",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/psmtec/haxe-iso4217.git"
+  },
+  "keywords": [
+    "currency-code",
+    "currency",
+    "iso4217",
+	"iso",
+    "4217"
+  ],
+  "author": "david.klein@psmtec.de",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/psmtec/haxe-iso4217/issues"
+  },
+  "homepage": "https://github.com/psmtec/haxe-iso4217"
+}

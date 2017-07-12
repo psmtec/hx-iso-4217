@@ -1,5 +1,8 @@
 package iso4217;
 
+// this file is generated, modifications will be lost
+
+@:expose @:keep
 @:enum abstract CurrencyCode(String) from String to String {
 	var AED = 'AED';
 	var AFN = 'AFN';
