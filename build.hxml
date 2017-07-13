@@ -1,3 +1,4 @@
 -cp data
 -main Converter
+-dce full
 --interp
