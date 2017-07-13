@@ -1,6 +1,9 @@
 import haxe.ds.Option;
 using Lambda;
 
+import iso4217.CurrencyCode;
+using iso4217.UnitConverter;
+
 typedef Entry = {
 	code: String,
 	number: Int,
@@ -24,8 +27,10 @@ class Converter {
 		writeCodes('./iso4217/CurrencyCode.hx', table);
 		writeDetails('./iso4217/CurrencyDetails.hx', table);
 
-		trace('EUR 1234 => ${iso4217.CurrencyTools.minorToMajor(iso4217.CurrencyCode.EUR, 1234)}');
-		trace('TND 1234 => ${iso4217.CurrencyTools.minorToMajor(iso4217.CurrencyCode.TND, 1234)}');
+		trace('EUR 1234 => ${UnitConverter.minorToMajor(EUR, 1234)}');
+		trace('TND 1234 => ${UnitConverter.minorToMajor(TND, 1234)}');
+		trace('EUR 123456 => ${EUR.minorToMajor(123456)}');
+		trace('TND 123456 => ${TND.minorToMajor(123456)}');
 	}
 
 	static function setEntry( table: Array<Entry>, node: Xml ) {
