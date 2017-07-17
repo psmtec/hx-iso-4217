@@ -118,7 +118,7 @@ class Converter {
 
 		for (e in sorted) {
 			if (e.code.length == 0) continue;
-			content.add('\tpublic static var ${e.code}(default, null): Currency = { number: ${e.number}, minorUnits: ${e.minorUnits}, minorToMajorFactor: ${e.minorToMajor} }\n');
+			content.add('\tpublic static var ${e.code}(default, null): Currency = { code: cast "${e.code}", number: ${e.number}, minorUnits: ${e.minorUnits}, minorToMajorFactor: ${e.minorToMajor} }\n');
 		}
 
 		content.add('}\n');

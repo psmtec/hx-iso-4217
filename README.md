@@ -20,7 +20,9 @@ npm install @psmtec/iso4217
 
 # js usage
 ```js
-import { UnitConverter } from '@psmtec/iso4217';
+import { Currencies } from '@psmtec/iso4217';
 
-console.log(UnitConverter.minorToMajor('EUR', 123456));
+console.log(Currencies.fromString('EUR').minorToMajor(123456));
+console.log(Currencies.fromNumber(978).minorToMajor(123456));
+console.log(Currencies.all());
 ```

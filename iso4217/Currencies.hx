@@ -2,6 +2,10 @@ package iso4217;
 
 @:expose @:keep
 class Currencies {
+	public static function all() : Array<Currency>
+		return Type.getClassFields(CurrencyDetails)
+			.map(function( item ) return Reflect.getProperty(CurrencyDetails, item));
+
 	public static function fromString( code: String ) : Currency {
 		for (fn in Type.getClassFields(CurrencyDetails)) {
 			if (fn == code.toUpperCase()) {

@@ -1,6 +1,5 @@
 import iso4217.CurrencyCode;
 import iso4217.Currencies;
-using iso4217.UnitConverter;
 
 import haxe.unit.*;
 
@@ -44,4 +43,9 @@ class CurrenciesTest extends TestCase {
 
 		assertTrue(result);
 	}
+
+	// function testAll() {
+	// 	var all = Currencies.all();
+	// 	trace(all);
+	// }
 }
