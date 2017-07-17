@@ -11,9 +11,14 @@ using iso4217.UnitConverter;
 trace(EUR.minorToMajor(1234));
 ```
 
+# js setup
+```bash
+npm install @psmtec/iso4217
+```
+
 # js usage
 ```js
-import { UnitConverter } from 'iso4217';
+import { UnitConverter } from '@psmtec/iso4217';
 
 console.log(UnitConverter.minorToMajor('EUR', 123456));
 ```
