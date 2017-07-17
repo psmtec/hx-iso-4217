@@ -1,5 +1,5 @@
 {
-  "name": "iso4217",
+  "name": "@psmtec/iso4217",
   "version": "0.1.0",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,7 @@
     "currency-code",
     "currency",
     "iso4217",
-	"iso",
+    "iso",
     "4217"
   ],
   "author": "david.klein@psmtec.de",
@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/psmtec/haxe-iso4217/issues"
   },
-  "homepage": "https://github.com/psmtec/haxe-iso4217"
+  "homepage": "https://github.com/psmtec/haxe-iso4217",
+  "description": "- ISO 4217:2015 data as of 2017-06-09\r - all data is available at: https://www.currency-iso.org",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
 }
