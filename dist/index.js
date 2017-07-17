@@ -2,6 +2,22 @@
 var $hx_exports = typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this;
 (function () { "use strict";
 $hx_exports["iso4217"] = $hx_exports["iso4217"] || {};
+function $extend(from, fields) {
+	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
+	for (var name in fields) proto[name] = fields[name];
+	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
+	return proto;
+}
+var HxOverrides = function() { };
+HxOverrides.__name__ = true;
+HxOverrides.remove = function(a,obj) {
+	var i = a.indexOf(obj);
+	if(i == -1) {
+		return false;
+	}
+	a.splice(i,1);
+	return true;
+};
 Math.__name__ = true;
 var Reflect = function() { };
 Reflect.__name__ = true;
@@ -12,26 +28,154 @@ Reflect.field = function(o,field) {
 		return null;
 	}
 };
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) {
+			a.push(f);
+		}
+		}
+	}
+	return a;
+};
+var Type = function() { };
+Type.__name__ = true;
+Type.getClassFields = function(c) {
+	var a = Reflect.fields(c);
+	HxOverrides.remove(a,"__name__");
+	HxOverrides.remove(a,"__interfaces__");
+	HxOverrides.remove(a,"__properties__");
+	HxOverrides.remove(a,"__super__");
+	HxOverrides.remove(a,"__meta__");
+	HxOverrides.remove(a,"prototype");
+	return a;
+};
 var haxe_ds_Option = { __ename__ : true, __constructs__ : ["Some","None"] };
 haxe_ds_Option.Some = function(v) { var $x = ["Some",0,v]; $x.__enum__ = haxe_ds_Option; return $x; };
 haxe_ds_Option.None = ["None",1];
 haxe_ds_Option.None.__enum__ = haxe_ds_Option;
-var iso4217_CurrencyData = $hx_exports["iso4217"]["CurrencyData"] = function(number,minorUnits,minorToMajor) {
+var iso4217_Currency = $hx_exports["iso4217"]["Currency"] = function(number,minorUnits,minorToMajorFactor) {
 	this.number = number;
 	this.minorUnits = minorUnits;
-	this.minorToMajor = minorToMajor;
+	this.minorToMajorFactor = minorToMajorFactor;
 };
-iso4217_CurrencyData.__name__ = true;
+iso4217_Currency.__name__ = true;
+iso4217_Currency.prototype = {
+	minorToMajor: function(value) {
+		return this.minorToMajorFactor * value;
+	}
+};
+var iso4217_CurrencyDB = $hx_exports["iso4217"]["CurrencyDB"] = function() { };
+iso4217_CurrencyDB.__name__ = true;
+iso4217_CurrencyDB.fromString = function(code) {
+	var _g = 0;
+	var _g1 = Type.getClassFields(iso4217_CurrencyDetails);
+	while(_g < _g1.length) {
+		var fn = _g1[_g];
+		++_g;
+		if(fn == code.toUpperCase()) {
+			var o = iso4217_CurrencyDetails;
+			var tmp;
+			if(o == null) {
+				return null;
+			} else {
+				var tmp1;
+				if(o.__properties__) {
+					tmp = o.__properties__["get_" + fn];
+					tmp1 = tmp;
+				} else {
+					tmp1 = false;
+				}
+				if(tmp1) {
+					return o[tmp]();
+				} else {
+					return o[fn];
+				}
+			}
+		}
+	}
+	throw new js__$Boot_HaxeError("invalid currency code \"" + code + "\"");
+};
+iso4217_CurrencyDB.fromNumber = function(n) {
+	var _g = 0;
+	var _g1 = Type.getClassFields(iso4217_CurrencyDetails);
+	while(_g < _g1.length) {
+		var fn = _g1[_g];
+		++_g;
+		var o = iso4217_CurrencyDetails;
+		var tmp;
+		var details;
+		if(o == null) {
+			details = null;
+		} else {
+			var details1;
+			if(o.__properties__) {
+				tmp = o.__properties__["get_" + fn];
+				details1 = tmp;
+			} else {
+				details1 = false;
+			}
+			if(details1) {
+				details = o[tmp]();
+			} else {
+				details = o[fn];
+			}
+		}
+		var tmp1;
+		var tmp2;
+		if(details == null) {
+			tmp2 = null;
+		} else {
+			var tmp3;
+			if(details.__properties__) {
+				tmp1 = details.__properties__["get_" + "number"];
+				tmp3 = tmp1;
+			} else {
+				tmp3 = false;
+			}
+			if(tmp3) {
+				tmp2 = details[tmp1]();
+			} else {
+				tmp2 = details["number"];
+			}
+		}
+		if(tmp2 == n) {
+			return details;
+		}
+	}
+	throw new js__$Boot_HaxeError("invalid currency number \"" + n + "\"");
+};
 var iso4217_CurrencyDetails = $hx_exports["iso4217"]["CurrencyDetails"] = function() { };
 iso4217_CurrencyDetails.__name__ = true;
 var iso4217_UnitConverter = $hx_exports["iso4217"]["UnitConverter"] = function() { };
 iso4217_UnitConverter.__name__ = true;
 iso4217_UnitConverter.minorToMajor = function(cc,value) {
 	var currency = Reflect.field(iso4217_CurrencyDetails,cc);
-	return value * currency.minorToMajor;
+	return value * currency.minorToMajorFactor;
 };
 var iso4217_Version = $hx_exports["iso4217"]["Version"] = function() { };
 iso4217_Version.__name__ = true;
+var js__$Boot_HaxeError = function(val) {
+	Error.call(this);
+	this.val = val;
+	this.message = String(val);
+	if(Error.captureStackTrace) {
+		Error.captureStackTrace(this,js__$Boot_HaxeError);
+	}
+};
+js__$Boot_HaxeError.__name__ = true;
+js__$Boot_HaxeError.wrap = function(val) {
+	if((val instanceof Error)) {
+		return val;
+	} else {
+		return new js__$Boot_HaxeError(val);
+	}
+};
+js__$Boot_HaxeError.__super__ = Error;
+js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
+});
 var js_Boot = function() { };
 js_Boot.__name__ = true;
 js_Boot.__string_rec = function(o,s) {
@@ -120,184 +264,184 @@ js_Boot.__string_rec = function(o,s) {
 };
 String.__name__ = true;
 Array.__name__ = true;
-iso4217_CurrencyDetails.AED = new iso4217_CurrencyData(784,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.AFN = new iso4217_CurrencyData(971,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ALL = new iso4217_CurrencyData(8,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.AMD = new iso4217_CurrencyData(51,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ANG = new iso4217_CurrencyData(532,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.AOA = new iso4217_CurrencyData(973,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ARS = new iso4217_CurrencyData(32,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.AUD = new iso4217_CurrencyData(36,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.AWG = new iso4217_CurrencyData(533,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.AZN = new iso4217_CurrencyData(944,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BAM = new iso4217_CurrencyData(977,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BBD = new iso4217_CurrencyData(52,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BDT = new iso4217_CurrencyData(50,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BGN = new iso4217_CurrencyData(975,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BHD = new iso4217_CurrencyData(48,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.BIF = new iso4217_CurrencyData(108,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.BMD = new iso4217_CurrencyData(60,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BND = new iso4217_CurrencyData(96,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BOB = new iso4217_CurrencyData(68,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BOV = new iso4217_CurrencyData(984,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BRL = new iso4217_CurrencyData(986,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BSD = new iso4217_CurrencyData(44,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BTN = new iso4217_CurrencyData(64,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BWP = new iso4217_CurrencyData(72,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BYN = new iso4217_CurrencyData(933,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.BZD = new iso4217_CurrencyData(84,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CAD = new iso4217_CurrencyData(124,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CDF = new iso4217_CurrencyData(976,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CHE = new iso4217_CurrencyData(947,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CHF = new iso4217_CurrencyData(756,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CHW = new iso4217_CurrencyData(948,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CLF = new iso4217_CurrencyData(990,haxe_ds_Option.Some(4),0.0001);
-iso4217_CurrencyDetails.CLP = new iso4217_CurrencyData(152,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.CNY = new iso4217_CurrencyData(156,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.COP = new iso4217_CurrencyData(170,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.COU = new iso4217_CurrencyData(970,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CRC = new iso4217_CurrencyData(188,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CUC = new iso4217_CurrencyData(931,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CUP = new iso4217_CurrencyData(192,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CVE = new iso4217_CurrencyData(132,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.CZK = new iso4217_CurrencyData(203,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.DJF = new iso4217_CurrencyData(262,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.DKK = new iso4217_CurrencyData(208,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.DOP = new iso4217_CurrencyData(214,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.DZD = new iso4217_CurrencyData(12,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.EGP = new iso4217_CurrencyData(818,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ERN = new iso4217_CurrencyData(232,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ETB = new iso4217_CurrencyData(230,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.EUR = new iso4217_CurrencyData(978,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.FJD = new iso4217_CurrencyData(242,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.FKP = new iso4217_CurrencyData(238,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GBP = new iso4217_CurrencyData(826,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GEL = new iso4217_CurrencyData(981,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GHS = new iso4217_CurrencyData(936,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GIP = new iso4217_CurrencyData(292,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GMD = new iso4217_CurrencyData(270,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GNF = new iso4217_CurrencyData(324,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.GTQ = new iso4217_CurrencyData(320,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.GYD = new iso4217_CurrencyData(328,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.HKD = new iso4217_CurrencyData(344,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.HNL = new iso4217_CurrencyData(340,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.HRK = new iso4217_CurrencyData(191,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.HTG = new iso4217_CurrencyData(332,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.HUF = new iso4217_CurrencyData(348,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.IDR = new iso4217_CurrencyData(360,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ILS = new iso4217_CurrencyData(376,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.INR = new iso4217_CurrencyData(356,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.IQD = new iso4217_CurrencyData(368,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.IRR = new iso4217_CurrencyData(364,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ISK = new iso4217_CurrencyData(352,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.JMD = new iso4217_CurrencyData(388,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.JOD = new iso4217_CurrencyData(400,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.JPY = new iso4217_CurrencyData(392,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.KES = new iso4217_CurrencyData(404,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.KGS = new iso4217_CurrencyData(417,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.KHR = new iso4217_CurrencyData(116,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.KMF = new iso4217_CurrencyData(174,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.KPW = new iso4217_CurrencyData(408,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.KRW = new iso4217_CurrencyData(410,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.KWD = new iso4217_CurrencyData(414,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.KYD = new iso4217_CurrencyData(136,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.KZT = new iso4217_CurrencyData(398,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.LAK = new iso4217_CurrencyData(418,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.LBP = new iso4217_CurrencyData(422,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.LKR = new iso4217_CurrencyData(144,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.LRD = new iso4217_CurrencyData(430,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.LSL = new iso4217_CurrencyData(426,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.LYD = new iso4217_CurrencyData(434,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.MAD = new iso4217_CurrencyData(504,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MDL = new iso4217_CurrencyData(498,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MGA = new iso4217_CurrencyData(969,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MKD = new iso4217_CurrencyData(807,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MMK = new iso4217_CurrencyData(104,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MNT = new iso4217_CurrencyData(496,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MOP = new iso4217_CurrencyData(446,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MRO = new iso4217_CurrencyData(478,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MUR = new iso4217_CurrencyData(480,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MVR = new iso4217_CurrencyData(462,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MWK = new iso4217_CurrencyData(454,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MXN = new iso4217_CurrencyData(484,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MXV = new iso4217_CurrencyData(979,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MYR = new iso4217_CurrencyData(458,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.MZN = new iso4217_CurrencyData(943,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.NAD = new iso4217_CurrencyData(516,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.NGN = new iso4217_CurrencyData(566,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.NIO = new iso4217_CurrencyData(558,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.NOK = new iso4217_CurrencyData(578,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.NPR = new iso4217_CurrencyData(524,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.NZD = new iso4217_CurrencyData(554,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.OMR = new iso4217_CurrencyData(512,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.PAB = new iso4217_CurrencyData(590,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.PEN = new iso4217_CurrencyData(604,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.PGK = new iso4217_CurrencyData(598,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.PHP = new iso4217_CurrencyData(608,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.PKR = new iso4217_CurrencyData(586,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.PLN = new iso4217_CurrencyData(985,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.PYG = new iso4217_CurrencyData(600,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.QAR = new iso4217_CurrencyData(634,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.RON = new iso4217_CurrencyData(946,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.RSD = new iso4217_CurrencyData(941,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.RUB = new iso4217_CurrencyData(643,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.RWF = new iso4217_CurrencyData(646,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.SAR = new iso4217_CurrencyData(682,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SBD = new iso4217_CurrencyData(90,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SCR = new iso4217_CurrencyData(690,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SDG = new iso4217_CurrencyData(938,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SEK = new iso4217_CurrencyData(752,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SGD = new iso4217_CurrencyData(702,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SHP = new iso4217_CurrencyData(654,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SLL = new iso4217_CurrencyData(694,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SOS = new iso4217_CurrencyData(706,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SRD = new iso4217_CurrencyData(968,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SSP = new iso4217_CurrencyData(728,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.STD = new iso4217_CurrencyData(678,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SVC = new iso4217_CurrencyData(222,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SYP = new iso4217_CurrencyData(760,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.SZL = new iso4217_CurrencyData(748,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.THB = new iso4217_CurrencyData(764,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TJS = new iso4217_CurrencyData(972,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TMT = new iso4217_CurrencyData(934,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TND = new iso4217_CurrencyData(788,haxe_ds_Option.Some(3),0.001);
-iso4217_CurrencyDetails.TOP = new iso4217_CurrencyData(776,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TRY = new iso4217_CurrencyData(949,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TTD = new iso4217_CurrencyData(780,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TWD = new iso4217_CurrencyData(901,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.TZS = new iso4217_CurrencyData(834,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.UAH = new iso4217_CurrencyData(980,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.UGX = new iso4217_CurrencyData(800,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.USD = new iso4217_CurrencyData(840,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.USN = new iso4217_CurrencyData(997,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.UYI = new iso4217_CurrencyData(940,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.UYU = new iso4217_CurrencyData(858,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.UZS = new iso4217_CurrencyData(860,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.VEF = new iso4217_CurrencyData(937,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.VND = new iso4217_CurrencyData(704,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.VUV = new iso4217_CurrencyData(548,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.WST = new iso4217_CurrencyData(882,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.XAF = new iso4217_CurrencyData(950,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.XAG = new iso4217_CurrencyData(961,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XAU = new iso4217_CurrencyData(959,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XBA = new iso4217_CurrencyData(955,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XBB = new iso4217_CurrencyData(956,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XBC = new iso4217_CurrencyData(957,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XBD = new iso4217_CurrencyData(958,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XCD = new iso4217_CurrencyData(951,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.XDR = new iso4217_CurrencyData(960,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XOF = new iso4217_CurrencyData(952,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.XPD = new iso4217_CurrencyData(964,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XPF = new iso4217_CurrencyData(953,haxe_ds_Option.Some(0),1);
-iso4217_CurrencyDetails.XPT = new iso4217_CurrencyData(962,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XSU = new iso4217_CurrencyData(994,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XTS = new iso4217_CurrencyData(963,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XUA = new iso4217_CurrencyData(965,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.XXX = new iso4217_CurrencyData(999,haxe_ds_Option.None,1);
-iso4217_CurrencyDetails.YER = new iso4217_CurrencyData(886,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ZAR = new iso4217_CurrencyData(710,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ZMW = new iso4217_CurrencyData(967,haxe_ds_Option.Some(2),0.01);
-iso4217_CurrencyDetails.ZWL = new iso4217_CurrencyData(932,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AED = new iso4217_Currency(784,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AFN = new iso4217_Currency(971,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ALL = new iso4217_Currency(8,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AMD = new iso4217_Currency(51,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ANG = new iso4217_Currency(532,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AOA = new iso4217_Currency(973,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ARS = new iso4217_Currency(32,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AUD = new iso4217_Currency(36,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AWG = new iso4217_Currency(533,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.AZN = new iso4217_Currency(944,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BAM = new iso4217_Currency(977,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BBD = new iso4217_Currency(52,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BDT = new iso4217_Currency(50,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BGN = new iso4217_Currency(975,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BHD = new iso4217_Currency(48,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.BIF = new iso4217_Currency(108,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.BMD = new iso4217_Currency(60,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BND = new iso4217_Currency(96,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BOB = new iso4217_Currency(68,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BOV = new iso4217_Currency(984,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BRL = new iso4217_Currency(986,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BSD = new iso4217_Currency(44,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BTN = new iso4217_Currency(64,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BWP = new iso4217_Currency(72,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BYN = new iso4217_Currency(933,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.BZD = new iso4217_Currency(84,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CAD = new iso4217_Currency(124,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CDF = new iso4217_Currency(976,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CHE = new iso4217_Currency(947,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CHF = new iso4217_Currency(756,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CHW = new iso4217_Currency(948,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CLF = new iso4217_Currency(990,haxe_ds_Option.Some(4),0.0001);
+iso4217_CurrencyDetails.CLP = new iso4217_Currency(152,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.CNY = new iso4217_Currency(156,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.COP = new iso4217_Currency(170,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.COU = new iso4217_Currency(970,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CRC = new iso4217_Currency(188,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CUC = new iso4217_Currency(931,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CUP = new iso4217_Currency(192,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CVE = new iso4217_Currency(132,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.CZK = new iso4217_Currency(203,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.DJF = new iso4217_Currency(262,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.DKK = new iso4217_Currency(208,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.DOP = new iso4217_Currency(214,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.DZD = new iso4217_Currency(12,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.EGP = new iso4217_Currency(818,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ERN = new iso4217_Currency(232,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ETB = new iso4217_Currency(230,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.EUR = new iso4217_Currency(978,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.FJD = new iso4217_Currency(242,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.FKP = new iso4217_Currency(238,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GBP = new iso4217_Currency(826,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GEL = new iso4217_Currency(981,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GHS = new iso4217_Currency(936,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GIP = new iso4217_Currency(292,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GMD = new iso4217_Currency(270,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GNF = new iso4217_Currency(324,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.GTQ = new iso4217_Currency(320,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.GYD = new iso4217_Currency(328,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.HKD = new iso4217_Currency(344,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.HNL = new iso4217_Currency(340,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.HRK = new iso4217_Currency(191,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.HTG = new iso4217_Currency(332,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.HUF = new iso4217_Currency(348,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.IDR = new iso4217_Currency(360,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ILS = new iso4217_Currency(376,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.INR = new iso4217_Currency(356,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.IQD = new iso4217_Currency(368,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.IRR = new iso4217_Currency(364,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ISK = new iso4217_Currency(352,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.JMD = new iso4217_Currency(388,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.JOD = new iso4217_Currency(400,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.JPY = new iso4217_Currency(392,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.KES = new iso4217_Currency(404,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.KGS = new iso4217_Currency(417,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.KHR = new iso4217_Currency(116,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.KMF = new iso4217_Currency(174,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.KPW = new iso4217_Currency(408,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.KRW = new iso4217_Currency(410,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.KWD = new iso4217_Currency(414,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.KYD = new iso4217_Currency(136,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.KZT = new iso4217_Currency(398,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.LAK = new iso4217_Currency(418,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.LBP = new iso4217_Currency(422,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.LKR = new iso4217_Currency(144,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.LRD = new iso4217_Currency(430,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.LSL = new iso4217_Currency(426,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.LYD = new iso4217_Currency(434,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.MAD = new iso4217_Currency(504,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MDL = new iso4217_Currency(498,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MGA = new iso4217_Currency(969,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MKD = new iso4217_Currency(807,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MMK = new iso4217_Currency(104,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MNT = new iso4217_Currency(496,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MOP = new iso4217_Currency(446,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MRO = new iso4217_Currency(478,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MUR = new iso4217_Currency(480,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MVR = new iso4217_Currency(462,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MWK = new iso4217_Currency(454,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MXN = new iso4217_Currency(484,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MXV = new iso4217_Currency(979,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MYR = new iso4217_Currency(458,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.MZN = new iso4217_Currency(943,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.NAD = new iso4217_Currency(516,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.NGN = new iso4217_Currency(566,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.NIO = new iso4217_Currency(558,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.NOK = new iso4217_Currency(578,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.NPR = new iso4217_Currency(524,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.NZD = new iso4217_Currency(554,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.OMR = new iso4217_Currency(512,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.PAB = new iso4217_Currency(590,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.PEN = new iso4217_Currency(604,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.PGK = new iso4217_Currency(598,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.PHP = new iso4217_Currency(608,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.PKR = new iso4217_Currency(586,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.PLN = new iso4217_Currency(985,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.PYG = new iso4217_Currency(600,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.QAR = new iso4217_Currency(634,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.RON = new iso4217_Currency(946,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.RSD = new iso4217_Currency(941,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.RUB = new iso4217_Currency(643,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.RWF = new iso4217_Currency(646,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.SAR = new iso4217_Currency(682,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SBD = new iso4217_Currency(90,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SCR = new iso4217_Currency(690,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SDG = new iso4217_Currency(938,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SEK = new iso4217_Currency(752,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SGD = new iso4217_Currency(702,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SHP = new iso4217_Currency(654,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SLL = new iso4217_Currency(694,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SOS = new iso4217_Currency(706,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SRD = new iso4217_Currency(968,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SSP = new iso4217_Currency(728,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.STD = new iso4217_Currency(678,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SVC = new iso4217_Currency(222,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SYP = new iso4217_Currency(760,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.SZL = new iso4217_Currency(748,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.THB = new iso4217_Currency(764,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TJS = new iso4217_Currency(972,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TMT = new iso4217_Currency(934,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TND = new iso4217_Currency(788,haxe_ds_Option.Some(3),0.001);
+iso4217_CurrencyDetails.TOP = new iso4217_Currency(776,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TRY = new iso4217_Currency(949,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TTD = new iso4217_Currency(780,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TWD = new iso4217_Currency(901,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.TZS = new iso4217_Currency(834,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.UAH = new iso4217_Currency(980,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.UGX = new iso4217_Currency(800,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.USD = new iso4217_Currency(840,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.USN = new iso4217_Currency(997,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.UYI = new iso4217_Currency(940,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.UYU = new iso4217_Currency(858,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.UZS = new iso4217_Currency(860,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.VEF = new iso4217_Currency(937,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.VND = new iso4217_Currency(704,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.VUV = new iso4217_Currency(548,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.WST = new iso4217_Currency(882,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.XAF = new iso4217_Currency(950,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.XAG = new iso4217_Currency(961,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XAU = new iso4217_Currency(959,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XBA = new iso4217_Currency(955,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XBB = new iso4217_Currency(956,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XBC = new iso4217_Currency(957,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XBD = new iso4217_Currency(958,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XCD = new iso4217_Currency(951,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.XDR = new iso4217_Currency(960,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XOF = new iso4217_Currency(952,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.XPD = new iso4217_Currency(964,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XPF = new iso4217_Currency(953,haxe_ds_Option.Some(0),1);
+iso4217_CurrencyDetails.XPT = new iso4217_Currency(962,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XSU = new iso4217_Currency(994,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XTS = new iso4217_Currency(963,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XUA = new iso4217_Currency(965,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.XXX = new iso4217_Currency(999,haxe_ds_Option.None,1);
+iso4217_CurrencyDetails.YER = new iso4217_Currency(886,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ZAR = new iso4217_Currency(710,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ZMW = new iso4217_Currency(967,haxe_ds_Option.Some(2),0.01);
+iso4217_CurrencyDetails.ZWL = new iso4217_Currency(932,haxe_ds_Option.Some(2),0.01);
 iso4217_Version.year = 2017;
 iso4217_Version.month = 6;
 iso4217_Version.day = 9;

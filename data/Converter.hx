@@ -1,8 +1,8 @@
 import haxe.ds.Option;
 using Lambda;
 
-import iso4217.CurrencyCode;
-using iso4217.UnitConverter;
+// import iso4217.CurrencyCode;
+// using iso4217.UnitConverter;
 
 typedef Entry = {
 	code: String,
@@ -27,15 +27,16 @@ class Converter {
 		writeCodes('./iso4217/CurrencyCode.hx', table);
 		writeDetails('./iso4217/CurrencyDetails.hx', table);
 
-		trace('EUR 1234 => ${UnitConverter.minorToMajor(EUR, 1234)}');
-		trace('TND 1234 => ${UnitConverter.minorToMajor(TND, 1234)}');
-		trace('EUR 123456 => ${EUR.minorToMajor(123456)}');
-		trace('TND 123456 => ${TND.minorToMajor(123456)}');
-		try {
-			trace('EXPLODE 123456 => ${UnitConverter.minorToMajor(CurrencyCode.validate("EXPLODE"), 123456)}');
-		} catch (x: Dynamic) {
-			trace(x);
-		}
+		// trace('EUR 1234 => ${UnitConverter.minorToMajor(EUR, 1234)}');
+		// trace('TND 1234 => ${UnitConverter.minorToMajor(TND, 1234)}');
+		// trace('EUR 123456 => ${EUR.minorToMajor(123456)}');
+		// trace('TND 123456 => ${TND.minorToMajor(123456)}');
+
+		// try {
+		// 	trace('EXPLODE 123456 => ${UnitConverter.minorToMajor(CurrencyCode.validate("EXPLODE"), 123456)}');
+		// } catch (x: Dynamic) {
+		// 	trace(x);
+		// }
 	}
 
 	static function setEntry( table: Array<Entry>, node: Xml ) {
@@ -101,17 +102,6 @@ class Converter {
 			content.add('\tvar ${e.code} = \'${e.code}\';\n');
 		}
 
-// TODO (DK) fromCode (string) + fromNumber (int) ?
-		content.add('\n\tpublic static function validate( code: String ) : CurrencyCode\n');
-		content.add('\t\treturn switch code.toUpperCase() {\n');
-			for (e in sorted) {
-				if (e.code.length == 0) continue;
-				content.add('\t\t\tcase "${e.code}": ${e.code};\n');
-			}
-
-		content.add("\t\t\tdefault: throw \'invalid CurrencyCode \"$code\"\';\n");
-		content.add('\t\t}\n');
-
 		content.add('}\n');
 
 		sys.io.File.saveContent(url, content.toString());
@@ -128,7 +118,7 @@ class Converter {
 
 		for (e in sorted) {
 			if (e.code.length == 0) continue;
-			content.add('\tpublic static var ${e.code}: CurrencyData = { number: ${e.number}, minorUnits: ${e.minorUnits}, minorToMajor: ${e.minorToMajor} }\n');
+			content.add('\tpublic static var ${e.code}(default, null): Currency = { number: ${e.number}, minorUnits: ${e.minorUnits}, minorToMajorFactor: ${e.minorToMajor} }\n');
 		}
 
 		content.add('}\n');

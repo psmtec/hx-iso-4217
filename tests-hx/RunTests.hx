@@ -2,6 +2,7 @@ import haxe.unit.*;
 
 class RunTests {
 	static var tests: Array<TestCase> = [
+		new CurrenciesTest(),
 		new UnitConverterTest(),
 	];
 

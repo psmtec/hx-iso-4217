@@ -1,4 +1,7 @@
 -cp tests-hx
 -main RunTests
--dce full
+# -dce full
 --interp
+# -neko tests.n
+# --next
+# -cmd neko tests.n

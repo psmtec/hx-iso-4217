@@ -6,9 +6,11 @@
 # haxe usage
 ```haxe
 import iso4217.CurrencyCode;
-using iso4217.UnitConverter;
+import iso4217.Currencies;
+import iso4217.UnitConverter;
 
 trace(EUR.minorToMajor(1234));
+trace(Currencies.fromCode('EUR').minorToMajor(1234));
 ```
 
 # js setup
