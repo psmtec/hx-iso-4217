@@ -15,4 +15,15 @@ class UnitConverterTest extends TestCase {
 	function testRandomCase() {
 		assertEquals(CurrencyCode.validate('eUR').minorToMajor(1234), 12.34);
 	}
+
+	function testFailForUnknownCurrencies() {
+		var currency = 'Fake Euro';
+
+		try {
+			CurrencyCode.validate(currency);
+			assertEquals('should not', 'get here');
+		} catch (x: Dynamic) {
+			assertEquals(x, 'invalid CurrencyCode "$currency"');
+		}
+	}
 }
