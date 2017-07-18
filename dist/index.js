@@ -74,33 +74,30 @@ iso4217_Currencies.all = function() {
 	});
 };
 iso4217_Currencies.fromString = function(code) {
-	var _g = 0;
-	var _g1 = Type.getClassFields(iso4217_CurrencyDetails);
-	while(_g < _g1.length) {
-		var fn = _g1[_g];
-		++_g;
-		if(fn == code.toUpperCase()) {
-			var o = iso4217_CurrencyDetails;
-			var tmp;
-			if(o == null) {
-				return null;
-			} else {
-				var tmp1;
-				if(o.__properties__) {
-					tmp = o.__properties__["get_" + fn];
-					tmp1 = tmp;
-				} else {
-					tmp1 = false;
-				}
-				if(tmp1) {
-					return o[tmp]();
-				} else {
-					return o[fn];
-				}
-			}
+	var o = iso4217_CurrencyDetails;
+	var field = code.toUpperCase();
+	var tmp;
+	var c;
+	if(o == null) {
+		c = null;
+	} else {
+		var c1;
+		if(o.__properties__) {
+			tmp = o.__properties__["get_" + field];
+			c1 = tmp;
+		} else {
+			c1 = false;
+		}
+		if(c1) {
+			c = o[tmp]();
+		} else {
+			c = o[field];
 		}
 	}
-	throw new js__$Boot_HaxeError("invalid currency code \"" + code + "\"");
+	if(c == null) {
+		throw new js__$Boot_HaxeError("invalid currency code \"" + code + "\"");
+	}
+	return c;
 };
 iso4217_Currencies.fromNumber = function(n) {
 	var _g = 0;

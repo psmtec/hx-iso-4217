@@ -7,13 +7,13 @@ class Currencies {
 			.map(function( item ) return Reflect.getProperty(CurrencyDetails, item));
 
 	public static function fromString( code: String ) : Currency {
-		for (fn in Type.getClassFields(CurrencyDetails)) {
-			if (fn == code.toUpperCase()) {
-				return Reflect.getProperty(CurrencyDetails, fn);
-			}
+		var c = Reflect.getProperty(CurrencyDetails, code.toUpperCase());
+
+		if (c == null) {
+			throw 'invalid currency code "$code"';
 		}
 
-		throw 'invalid currency code "$code"';
+		return c;
 	}
 
 	public static function fromNumber( n: Int ) : Currency {
