@@ -1,4 +1,0 @@
--cp tests-hx
--main RunTests
--dce full
---interp

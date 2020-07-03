@@ -1,9 +1,0 @@
--D shallow-expose
--js dist/index.js
--dce full
-iso4217.Currency
-iso4217.CurrencyCode
-iso4217.Currencies
-iso4217.CurrencyDetails
-# iso4217.UnitConverter
-iso4217.Version
